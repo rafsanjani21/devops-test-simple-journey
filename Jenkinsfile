@@ -27,8 +27,11 @@ pipeline {
                     else
                         docker run -d --name ${APP_NAME} --restart unless-stopped -p ${PORT}:8080 ${APP_NAME}:${COMMIT_HASH}
                     fi
-                    sleep 2
-                    curl -s http://localhost:${PORT}/ | grep "${COMMIT_HASH}"
+                    sleep 3
+                    
+                    # Ambil IP spesifik container untuk curl dari dalam container Jenkins
+                    APP_IP=\$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${APP_NAME})
+                    curl -s http://\${APP_IP}:8080/ | grep "${COMMIT_HASH}"
                 """
             }
         }
